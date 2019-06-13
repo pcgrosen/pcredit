@@ -100,16 +100,19 @@ int get_pch_sbreg_addr(struct pci_access *pci, pciaddr_t *sbreg_addr) {
 }
 
 uint32_t sideband_read(void *sbmap, uint8_t port, uint16_t reg) {
-  uintptr_t addr = ((uintptr_t)sbmap + (port << P2SB_PORTID_SHIFT) + reg);
-  uint32_t val = *((volatile uint32_t *)addr);
+  volatile uint32_t *addr;
+  uint32_t val;
+  addr = (volatile uint32_t *)((uintptr_t)sbmap + (port << P2SB_PORTID_SHIFT) + reg);
+  val = *addr;
   MSG("*%p == %08x", addr, val);
   return val;
 }
 
 void sideband_write(void *sbmap, uint8_t port, uint16_t reg, uint32_t value) {
-  uintptr_t addr = ((uintptr_t)sbmap + (port << P2SB_PORTID_SHIFT) + reg);
+  volatile uint32_t *addr;
+  addr = (volatile uint32_t *)((uintptr_t)sbmap + (port << P2SB_PORTID_SHIFT) + reg);
   MSG("*%p =  %08x", addr, value);
-  *(volatile uint32_t *)addr = value;
+  *addr = value;
 }
 
 int try_pch(struct pci_access *pci, uint8_t port, uint32_t offset, uint8_t do_write, uint32_t value) {
